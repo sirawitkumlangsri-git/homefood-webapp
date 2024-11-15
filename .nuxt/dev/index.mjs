@@ -10,7 +10,6 @@ import { getRequestDependencies, getPreloadLinks, getPrefetchLinks, createRender
 import { stringify, uneval } from 'file:///Users/sirawitkumlungsri/Documents/GitHub/homefood-webapp/node_modules/devalue/index.js';
 import destr from 'file:///Users/sirawitkumlungsri/Documents/GitHub/homefood-webapp/node_modules/destr/dist/index.mjs';
 import { withQuery, joinURL, withTrailingSlash, parseURL, withoutBase, getQuery, joinRelativeURL } from 'file:///Users/sirawitkumlungsri/Documents/GitHub/homefood-webapp/node_modules/ufo/dist/index.mjs';
-import { renderToString } from 'file:///Users/sirawitkumlungsri/Documents/GitHub/homefood-webapp/node_modules/vue/server-renderer/index.mjs';
 import { propsToString, renderSSRHead } from 'file:///Users/sirawitkumlungsri/Documents/GitHub/homefood-webapp/node_modules/@unhead/ssr/dist/index.mjs';
 import { createHooks } from 'file:///Users/sirawitkumlungsri/Documents/GitHub/homefood-webapp/node_modules/hookable/dist/index.mjs';
 import { createFetch as createFetch$1, Headers as Headers$1 } from 'file:///Users/sirawitkumlungsri/Documents/GitHub/homefood-webapp/node_modules/ofetch/dist/node.mjs';
@@ -701,6 +700,9 @@ const _inlineRuntimeConfig = {
       "/__nuxt_error": {
         "cache": false
       },
+      "/": {
+        "prerender": true
+      },
       "/_nuxt/builds/meta/**": {
         "headers": {
           "cache-control": "public, max-age=31536000, immutable"
@@ -1153,31 +1155,38 @@ const _id_$1 = /*#__PURE__*/Object.freeze({
 const prisma$1 = new PrismaClient();
 const login_post = defineEventHandler(async (event) => {
   const { phoneNumber } = await readBody(event);
-  const user = await prisma$1.user.findUnique({
-    where: { phoneNumber }
-  });
-  if (!user) {
+  try {
+    const user = await prisma$1.user.findUnique({
+      where: { phoneNumber }
+    });
+    if (!user) {
+      throw createError({
+        statusCode: 400,
+        message: "User not found."
+      });
+    }
+    const token = jwt.sign(
+      { userId: user.id, role: user.role },
+      "your_secret_key",
+      { expiresIn: "1h" }
+    );
+    return {
+      message: "Login successful",
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        fullname: user.fullname,
+        phoneNumber: user.phoneNumber,
+        role: user.role
+      }
+    };
+  } catch (error) {
     throw createError({
-      statusCode: 400,
-      message: "User not found."
+      statusCode: 500,
+      message: "Internal server error."
     });
   }
-  const token = jwt.sign(
-    { userId: user.id, role: user.role },
-    "your_secret_key",
-    { expiresIn: "1h" }
-  );
-  return {
-    message: "Login successful",
-    token,
-    user: {
-      id: user.id,
-      email: user.email,
-      fullname: user.fullname,
-      phoneNumber: user.phoneNumber,
-      role: user.role
-    }
-  };
 });
 
 const login_post$1 = /*#__PURE__*/Object.freeze({
@@ -1293,32 +1302,7 @@ function publicAssetsURL(...path) {
 globalThis.__buildAssetsURL = buildAssetsURL;
 globalThis.__publicAssetsURL = publicAssetsURL;
 const getClientManifest = () => import('file:///Users/sirawitkumlungsri/Documents/GitHub/homefood-webapp/.nuxt/dist/server/client.manifest.mjs').then((r) => r.default || r).then((r) => typeof r === "function" ? r() : r);
-const getServerEntry = () => import('file:///Users/sirawitkumlungsri/Documents/GitHub/homefood-webapp/.nuxt/dist/server/server.mjs').then((r) => r.default || r);
 const getSSRStyles = lazyCachedFunction(() => Promise.resolve().then(function () { return styles$1; }).then((r) => r.default || r));
-const getSSRRenderer = lazyCachedFunction(async () => {
-  const manifest = await getClientManifest();
-  if (!manifest) {
-    throw new Error("client.manifest is not available");
-  }
-  const createSSRApp = await getServerEntry();
-  if (!createSSRApp) {
-    throw new Error("Server bundle is not available");
-  }
-  const options = {
-    manifest,
-    renderToString: renderToString$1,
-    buildAssetsURL
-  };
-  const renderer = createRenderer(createSSRApp, options);
-  async function renderToString$1(input, context) {
-    const html = await renderToString(input, context);
-    if (process.env.NUXT_VITE_NODE_OPTIONS) {
-      renderer.rendererContext.updateManifest(await getClientManifest());
-    }
-    return APP_ROOT_OPEN_TAG + html + APP_ROOT_CLOSE_TAG;
-  }
-  return renderer;
-});
 const getSPARenderer = lazyCachedFunction(async () => {
   const manifest = await getClientManifest();
   const spaTemplate = await Promise.resolve().then(function () { return _virtual__spaTemplate; }).then((r) => r.template).catch(() => "").then((r) => APP_ROOT_OPEN_TAG + r + APP_ROOT_CLOSE_TAG);
@@ -1403,7 +1387,7 @@ const renderer = defineRenderHandler(async (event) => {
     url,
     event,
     runtimeConfig: useRuntimeConfig(event),
-    noSSR: event.context.nuxt?.noSSR || routeOptions.ssr === false && !isRenderingIsland || (false),
+    noSSR: !!true,
     head,
     error: !!ssrError,
     nuxt: void 0,
@@ -1413,7 +1397,7 @@ const renderer = defineRenderHandler(async (event) => {
     modules: /* @__PURE__ */ new Set(),
     islandContext
   };
-  const renderer = ssrContext.noSSR ? await getSPARenderer() : await getSSRRenderer();
+  const renderer = await getSPARenderer() ;
   const _rendered = await renderer.renderToString(ssrContext).catch(async (error) => {
     if (ssrContext._renderResponse && error.message === "skipping render") {
       return {};
@@ -1595,7 +1579,7 @@ function renderPayloadJsonScript(opts) {
     "type": "application/json",
     "innerHTML": contents,
     "data-nuxt-data": appId,
-    "data-ssr": !(opts.ssrContext.noSSR)
+    "data-ssr": !(true)
   };
   {
     payload.id = "__NUXT_DATA__";

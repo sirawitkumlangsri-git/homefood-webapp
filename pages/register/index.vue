@@ -27,7 +27,7 @@ const router = useRouter()
 
 const register = async () => {
   try {
-    const response = await $fetch('/api/auth/register', {
+    const response = await $fetch('/server/api/auth/register', {
       method: 'POST',
       body: { email: email.value, phoneNumber: phoneNumber.value, fullname: fullname.value }
     })

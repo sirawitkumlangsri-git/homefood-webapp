@@ -15,7 +15,6 @@ export const useAuthStore = defineStore('auth', () => {
   const router = useRouter();
 
   const initializeAuth = () => {
-    // Check if we are in the browser environment
     if (typeof window !== 'undefined') {
       const savedUser = localStorage.getItem('user');
       const token = localStorage.getItem('token');
