@@ -1,6 +1,5 @@
-// store/auth.ts
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 export const useAuthStore = defineStore('auth', () => {
@@ -16,12 +15,15 @@ export const useAuthStore = defineStore('auth', () => {
   const router = useRouter();
 
   const initializeAuth = () => {
-    const savedUser = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
+    // Check if we are in the browser environment
+    if (typeof window !== 'undefined') {
+      const savedUser = localStorage.getItem('user');
+      const token = localStorage.getItem('token');
 
-    if (savedUser && token) {
-      isAuthenticated.value = true;
-      user.value = JSON.parse(savedUser);
+      if (savedUser && token) {
+        isAuthenticated.value = true;
+        user.value = JSON.parse(savedUser);
+      }
     }
   };
 
@@ -34,8 +36,12 @@ export const useAuthStore = defineStore('auth', () => {
       phoneNumber: userData.user.phoneNumber,
       role: userData.user.role,
     };
-    localStorage.setItem('user', JSON.stringify(user.value));
-    localStorage.setItem('token', userData.token);
+
+    // Check if we are in the browser environment
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('user', JSON.stringify(user.value));
+      localStorage.setItem('token', userData.token);
+    }
 
     if (userData.user.role === 'admin') {
       router.push('/admin');
@@ -53,12 +59,22 @@ export const useAuthStore = defineStore('auth', () => {
       phoneNumber: '',
       role: '',
     };
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+
+    // Check if we are in the browser environment
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+    }
+
     router.push('/');
   };
 
   const isAdmin = computed(() => user.value?.role === 'admin');
+
+  // Ensure the code runs on the client side after the component is mounted
+  onMounted(() => {
+    initializeAuth();
+  });
 
   return {
     isAuthenticated,

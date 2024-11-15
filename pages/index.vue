@@ -145,7 +145,6 @@ function handleResize() {
   isDesktop.value = window.innerWidth >= 640
 }
 
-authStore.initializeAuth
 
 onMounted(() => {
   handleResize()
