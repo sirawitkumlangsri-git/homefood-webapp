@@ -1,0 +1,1 @@
+import e from"./BflhoQsE.js";import{J as a,A as o,t as r,B as s}from"./jdd4cAWb.js";const _={__name:"index",setup(n){return(m,t)=>(r(),a(e,null,{default:o(()=>t[0]||(t[0]=[s(" asd ")])),_:1}))}};export{_ as default};
