@@ -82,7 +82,7 @@
       class="mt-3 w-[50px] h-[50px] rounded-full bg-white overflow-hidden hover:-translate-y-1 transition-all duration-300 group">
       <RouterLink to="/profile">
         <img alt="Profile" class="w-full h-full object-cover "
-          :src="authStore.user?.role === 'admin' ? 'https://img5.pic.in.th/file/secure-sv1/software-engineerc1438b6fade78e82.png' : 'https://img2.pic.in.th/pic/volunteer_11077481.png'">
+          :src="authStore.user?.role === 'admin' ? 'https://img5.pic.in.th/file/secure-sv1/software-engineerc1438b6fade78e82.png' : '/photo-user.png'">
       </RouterLink>
     </div>
     <div v-else class="flex justify-center mt-5 hover:-translate-y-1 transition-all duration-300 group">

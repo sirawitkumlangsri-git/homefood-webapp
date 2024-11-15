@@ -167,19 +167,19 @@ const closeModal = () => {
         </dialog>
 
         <div v-if="activeSection === 'open'" class="mt-3">
-            <div v-for="packet in packets" :key="packet.name">
-                <div class="w-full h-[90px] mt-2 flex bg-white shadow-lg rounded-xl">
-                    <div class="w-[120px]">
+            <div v-for="packet in packets" :key="packet.name" class="sm:flex sm:justify-center">
+                <div class="w-full sm:w-[600px] sm:h-[140px] h-[90px] mt-2 flex bg-white shadow-lg rounded-xl">
+                    <div class="w-[120px] sm:w-[200px]">
                         <img :src="packet.src" :alt="packet.name"
-                            class="w-[120px] h-full object-cover rounded-l-xl shadow-md">
+                            class="w-full h-full object-cover rounded-l-xl shadow-md">
                     </div>
-                    <div class="p-3 w-[140px]">
-                        <p class="text-[12px] font-medium">{{ packet.name }}</p>
-                        <p class="text-[14px] font-bold text-[#FF6347] mt-5">เริ่มต้น ฿{{ packet.price }}.-</p>
+                    <div class="p-3 w-[140px] sm:w-[250px]">
+                        <p class="sm:text-[18px] text-[12px] font-medium">{{ packet.name }}</p>
+                        <p class="text-[14px] sm:text-[16px] font-bold text-[#FF6347] mt-5">เริ่มต้น ฿{{ packet.price }}.-</p>
                     </div>
                     <div class="flex items-center justify-end w-[57px]">
                         <button @click="openModal(packet)"
-                            class="w-[26px] h-[26px] bg-[#FF96843D] rounded-full flex justify-center items-center">
+                            class="w-[26px] h-[26px] sm:w-[45px] sm:h-[45px] bg-[#FF96843D] rounded-full flex justify-center items-center">
                             <svg class="" width="6" height="12" viewBox="0 0 6 12" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd" clip-rule="evenodd"
@@ -195,7 +195,7 @@ const closeModal = () => {
         <!-- Modal Display -->
         <div v-if="selectedPacket" class="fixed inset-0 flex justify-center items-center bg-black bg-opacity-40"
             >
-            <div class="w-[375px] h-[500px] bg-white rounded-t-xl sm:rounded-xl absolute bottom-0 sm:bottom-[25%]">
+            <div class="w-[375px] h-[500px] sm:h-[400px] bg-white rounded-t-xl sm:rounded-xl absolute bottom-0 sm:bottom-[25%]">
                 <div class="flex flex-col">
                     <div class=" absolute top-2 left-[41%] sm:hidden">
                         <div class=" w-[61px] h-1 rounded-full bg-[#00000033]"></div>
@@ -226,32 +226,32 @@ const closeModal = () => {
                         <p>{{ selectedPacket.description[0].text4 }}</p>
                     </div>
                 </div>
-                <div class=" cursor-pointer absolute bottom-[30%] left-5  h-[53px] w-[330px] bg-[#FF6347] mt-6 rounded-3xl">
+                <div class=" cursor-pointer absolute bottom-[30%] sm:bottom-[20%] left-5  h-[53px] w-[330px] bg-[#FF6347] mt-6 rounded-3xl">
                     <div class="flex justify-between p-4">
                         <p class="font-medium text-[18px] text-white">ซื้อแพ็กเกจนี้</p>
                         <p class="font-medium text-[18px] text-white">฿{{ selectedPacket.price }}.00</p>
                     </div>
                 </div>
-                <div class=" cursor-pointer absolute bottom-[21%] left-[45%]">
+                <div class=" cursor-pointer absolute bottom-[21%] sm:bottom-[10%] left-[45%]">
                     <p @click="selectedPacket = null" class="text-[18px] text-[#0D1217] text-opacity-40">ยกเลิก</p>
                 </div>
             </div>
         </div>
 
         <div v-if="activeSection === 'yourpacket'" class="mt-3">
-            <div v-for="packet in yourPackets" :key="packet.name">
-                <div class="w-full h-[90px] mt-2 flex bg-white shadow-lg rounded-xl">
-                    <div class="w-[120px]">
+            <div v-for="packet in yourPackets" :key="packet.name" class="sm:flex sm:justify-center">
+                <div class="w-full sm:w-[600px] sm:h-[140px] h-[90px] mt-2 flex bg-white shadow-lg rounded-xl">
+                    <div class="w-[120px] sm:w-[200px]">
                         <img :src="packet.src" :alt="packet.name"
-                            class="w-[120px] h-full object-cover rounded-l-xl shadow-md">
+                            class="w-full h-full object-cover rounded-l-xl shadow-md">
                     </div>
-                    <div class="p-3 w-[140px]">
-                        <p class="text-[12px] font-medium">{{ packet.name }}</p>
-                        <p class="text-[14px] font-bold text-[#FF6347] mt-5">เริ่มต้น ฿{{ packet.price }}.-</p>
+                    <div class="p-3 w-[140px] sm:w-[250px]">
+                        <p class="sm:text-[18px] text-[12px] font-medium">{{ packet.name }}</p>
+                        <p class=" sm:text-[16px] text-[14px] font-bold text-[#FF6347] mt-5">เริ่มต้น ฿{{ packet.price }}.-</p>
                     </div>
                     <div class="flex items-center justify-end w-[57px]">
 
-                        <div class="w-[26px] h-[26px] bg-[#FF96843D] rounded-full flex justify-center items-center">
+                        <div class="w-[26px] h-[26px] sm:w-[45px] sm:h-[45px] bg-[#FF96843D] rounded-full flex justify-center items-center">
                             <svg class="" width="6" height="12" viewBox="0 0 6 12" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd" clip-rule="evenodd"

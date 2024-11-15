@@ -47,8 +47,11 @@
               <p class="text-[12px]">{{ email }}</p>
             </div>
           </div>
+          <RouterLink to="/profile/edit">
+            <editProfile />
+          </RouterLink>
 
-          <div class="mt-2">
+          <!-- <div class="mt-2">
             <editProfile onclick="my_modal_2.showModal()" />
 
             <dialog id="my_modal_2" class="modal">
@@ -111,7 +114,7 @@
                 <button>close</button>
               </form>
             </dialog>
-          </div>
+          </div> -->
         </div>
       </div>
       <div
