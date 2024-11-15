@@ -1,5 +1,4 @@
 {
-  "name": "nuxt-app",
   "private": true,
   "type": "module",
   "scripts": {
@@ -20,6 +19,7 @@
     "@prisma/client": "^5.22.0",
     "@vercel/postgres": "^0.10.0",
     "bcrypt": "^5.1.1",
+    "core-js": "^3.39.0",
     "jsonwebtoken": "^9.0.2",
     "nuxt": "^3.14.159",
     "pinia": "^2.2.6",
