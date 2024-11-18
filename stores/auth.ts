@@ -36,7 +36,6 @@ export const useAuthStore = defineStore('auth', () => {
       role: userData.user.role,
     };
 
-    // Check if we are in the browser environment
     if (typeof window !== 'undefined') {
       localStorage.setItem('user', JSON.stringify(user.value));
       localStorage.setItem('token', userData.token);
@@ -59,7 +58,6 @@ export const useAuthStore = defineStore('auth', () => {
       role: '',
     };
 
-    // Check if we are in the browser environment
     if (typeof window !== 'undefined') {
       localStorage.removeItem('user');
       localStorage.removeItem('token');

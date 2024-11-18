@@ -171,7 +171,6 @@ import { ref, onMounted, onBeforeUnmount } from 'vue';
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
-    /* เพิ่มการเลื่อนในแนวนอน หากมีเนื้อหามากเกินกว่าพื้นที่ */
 }
 
 .promotion-background {
