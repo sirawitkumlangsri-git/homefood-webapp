@@ -216,12 +216,33 @@ watch(phone, (newValue) => {
 
 const router = useRouter()
 
+// const register = async () => {
+//   const response = await $fetch('/api/auth/register', {
+//     method: 'POST',
+//     body: { email: email.value, phoneNumber: phone.value, fullname: fullName.value }
+//   });
+//   router.push('/login')
+// };
+
 const register = async () => {
-  const response = await $fetch('/api/auth/register', {
-    method: 'POST',
-    body: { email: email.value, phoneNumber: phone.value, fullname: fullName.value }
-  });
-  router.push('/login')
+  try {
+    const response = await $fetch('/api/auth/send-otp', {
+      method: 'POST',
+      body: { phoneNumber: phone.value}
+    });
+
+    if (response.success) {
+      router.push({
+        path: '/register/otp',
+        query: { phone: phone.value }
+      });
+    } else {
+      alert('เกิดข้อผิดพลาดในการลงทะเบียน');
+    }
+  } catch (error) {
+    console.error(error);
+    alert('เกิดข้อผิดพลาดในการลงทะเบียน');
+  }
 };
 
 
@@ -440,7 +461,6 @@ input:focus {
 }
 
 :deep(.iti__search-input) {
-  /* border: 1px solid #6D6C69 !important; */
   border-radius: 4px;
   margin: 4px 8px;
   width: calc(100% - 16px);
@@ -449,6 +469,5 @@ input:focus {
 
 :deep(.iti__search-input:focus) {
   outline: none;
-  /* border-color: #6D6C69 !important; */
 }
 </style>

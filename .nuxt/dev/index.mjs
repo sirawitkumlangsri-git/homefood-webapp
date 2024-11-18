@@ -273,14 +273,26 @@ _FET01JpL7e
 ];
 
 const _lazy_HQ0HXm = () => Promise.resolve().then(function () { return _id_$1; });
+const _lazy_ReLQzS = () => Promise.resolve().then(function () { return users$1; });
 const _lazy_NAK29Q = () => Promise.resolve().then(function () { return login_post$1; });
 const _lazy_VDQiQp = () => Promise.resolve().then(function () { return register_post$1; });
+const _lazy_qmeOx7 = () => Promise.resolve().then(function () { return sendOtp_post$1; });
+const _lazy_vm9S3V = () => Promise.resolve().then(function () { return delUser$1; });
+const _lazy_9Si0zi = () => Promise.resolve().then(function () { return register$1; });
+const _lazy_mZAFba = () => Promise.resolve().then(function () { return sendOtp$1; });
+const _lazy_tiSO40 = () => Promise.resolve().then(function () { return verifyOtp$1; });
 const _lazy_6hFjJg = () => Promise.resolve().then(function () { return renderer$1; });
 
 const handlers = [
   { route: '/api/admin/user/:id', handler: _lazy_HQ0HXm, lazy: true, middleware: false, method: undefined },
+  { route: '/api/admin/users', handler: _lazy_ReLQzS, lazy: true, middleware: false, method: undefined },
   { route: '/api/auth/login', handler: _lazy_NAK29Q, lazy: true, middleware: false, method: "post" },
   { route: '/api/auth/register', handler: _lazy_VDQiQp, lazy: true, middleware: false, method: "post" },
+  { route: '/api/auth/send-otp', handler: _lazy_qmeOx7, lazy: true, middleware: false, method: "post" },
+  { route: '/api/delUser', handler: _lazy_vm9S3V, lazy: true, middleware: false, method: undefined },
+  { route: '/api/otp/register', handler: _lazy_9Si0zi, lazy: true, middleware: false, method: undefined },
+  { route: '/api/otp/send-otp', handler: _lazy_mZAFba, lazy: true, middleware: false, method: undefined },
+  { route: '/api/otp/verify-otp', handler: _lazy_tiSO40, lazy: true, middleware: false, method: undefined },
   { route: '/__nuxt_error', handler: _lazy_6hFjJg, lazy: true, middleware: false, method: undefined },
   { route: '/**', handler: _lazy_6hFjJg, lazy: true, middleware: false, method: undefined }
 ];
@@ -1099,12 +1111,12 @@ const errorDev = /*#__PURE__*/Object.freeze({
   template: template$1
 });
 
-const prisma$2 = new PrismaClient();
+const prisma$5 = new PrismaClient();
 const _id_ = defineEventHandler(async (event) => {
   const { id } = event.context.params;
   if (event.req.method === "GET") {
     try {
-      const user = await prisma$2.user.findUnique({
+      const user = await prisma$5.user.findUnique({
         where: {
           id: Number(id)
         }
@@ -1119,13 +1131,13 @@ const _id_ = defineEventHandler(async (event) => {
         message: error.message || "Error fetching user data"
       };
     } finally {
-      await prisma$2.$disconnect();
+      await prisma$5.$disconnect();
     }
   }
   if (event.req.method === "PUT") {
     try {
       const body = await readBody(event);
-      const updatedUser = await prisma$2.user.update({
+      const updatedUser = await prisma$5.user.update({
         where: {
           id: Number(id)
         },
@@ -1138,7 +1150,7 @@ const _id_ = defineEventHandler(async (event) => {
         message: error.message || "Error updating user data"
       };
     } finally {
-      await prisma$2.$disconnect();
+      await prisma$5.$disconnect();
     }
   }
   return {
@@ -1152,11 +1164,60 @@ const _id_$1 = /*#__PURE__*/Object.freeze({
   default: _id_
 });
 
-const prisma$1 = new PrismaClient();
+const prisma$4 = new PrismaClient();
+const users = defineEventHandler(async (event) => {
+  const method = event.node.req.method;
+  const query = getQuery$1(event);
+  try {
+    if (method === "GET") {
+      if (query.id) {
+        const user = await prisma$4.user.findUnique({
+          where: { id: Number(query.id) }
+        });
+        if (!user) {
+          return { statusCode: 404, message: "User not found" };
+        }
+        return user;
+      } else {
+        const users = await prisma$4.user.findMany();
+        return users;
+      }
+    }
+    if (method === "PUT") {
+      const body = await readBody(event);
+      if (!query.id) {
+        return { statusCode: 400, message: "User ID is required" };
+      }
+      const updatedUser = await prisma$4.user.update({
+        where: { id: Number(query.id) },
+        data: body
+      });
+      return { statusCode: 200, data: updatedUser };
+    }
+    if (method === "DELETE") {
+      const userId = Number(query.id);
+      await prisma$4.user.delete({
+        where: { id: userId }
+      });
+      setResponseStatus(event, 204);
+      return { message: "User deleted successfully" };
+    }
+    return { statusCode: 405, message: "Method Not Allowed" };
+  } catch (error) {
+    return { statusCode: 500, message: error.message };
+  }
+});
+
+const users$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  default: users
+});
+
+const prisma$3 = new PrismaClient();
 const login_post = defineEventHandler(async (event) => {
   const { phoneNumber } = await readBody(event);
   try {
-    const user = await prisma$1.user.findUnique({
+    const user = await prisma$3.user.findUnique({
       where: { phoneNumber }
     });
     if (!user) {
@@ -1194,34 +1255,253 @@ const login_post$1 = /*#__PURE__*/Object.freeze({
   default: login_post
 });
 
-const prisma = new PrismaClient();
+const prisma$2 = new PrismaClient();
 const register_post = defineEventHandler(async (event) => {
-  const { email, phoneNumber, fullname } = await readBody(event);
-  const existingUser = await prisma.user.findUnique({
-    where: { email }
+  const { email, phoneNumber, fullname, otpToken, otpCode } = await readBody(event);
+  const existingUser = await prisma$2.user.findUnique({
+    where: { phoneNumber }
   });
   if (existingUser) {
     throw createError({
       statusCode: 400,
-      message: "User already exists."
+      message: "\u0E21\u0E35\u0E1C\u0E39\u0E49\u0E43\u0E0A\u0E49\u0E2D\u0E22\u0E39\u0E48\u0E41\u0E25\u0E49\u0E27."
     });
   }
-  const newUser = await prisma.user.create({
-    data: {
-      email,
-      phoneNumber,
-      fullname
-    }
-  });
-  return {
-    message: "User registered successfully",
-    user: newUser
+  const otpValidateData = {
+    token: otpToken,
+    otp_code: otpCode
   };
+  try {
+    const response = await fetch("https://portal-otp.smsmkt.com/api/otp-validate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api_key": "793979ca69c1b4a28e813e0e78f6fdd7",
+        "secret_key": "Telzcc8Xy2WB06Qp"
+      },
+      body: JSON.stringify(otpValidateData)
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw createError({
+        statusCode: 400,
+        message: "OTP validation failed: " + (errorData.detail || response.statusText)
+      });
+    }
+    const otpResponse = await response.json();
+    console.log("otpResVadi : ", otpResponse);
+    if (otpResponse.code === "000" && otpResponse.result.status === true) {
+      const newUser = await prisma$2.user.create({
+        data: {
+          email,
+          phoneNumber,
+          fullname
+        }
+      });
+      return {
+        message: "User registered successfully",
+        user: newUser
+      };
+    } else {
+      throw createError({
+        statusCode: 400,
+        message: "Invalid OTP code."
+      });
+    }
+  } catch (error) {
+    console.error("Error validating OTP or registering user:", error);
+    throw createError({
+      statusCode: 400,
+      message: "OTP validation failed."
+    });
+  }
 });
 
 const register_post$1 = /*#__PURE__*/Object.freeze({
   __proto__: null,
   default: register_post
+});
+
+const sendOtp_post = defineEventHandler(async (event) => {
+  const { phoneNumber } = await readBody(event);
+  const otpSendData = {
+    project_key: "155b74a7cb",
+    phone: phoneNumber
+  };
+  try {
+    const response = await fetch("https://portal-otp.smsmkt.com/api/otp-send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api_key": "793979ca69c1b4a28e813e0e78f6fdd7",
+        "secret_key": "Telzcc8Xy2WB06Qp"
+      },
+      body: JSON.stringify(otpSendData)
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw createError({
+        statusCode: 400,
+        message: "Failed to send OTP: " + (errorData.detail || response.statusText)
+      });
+    }
+    const otpResponse = await response.json();
+    console.log("otpResponsendOtp : ", otpResponse);
+    if (otpResponse.code === "000" && otpResponse.result.status === "OK.") {
+      return {
+        message: "OTP sent successfully",
+        token: otpResponse.result.token
+      };
+    } else {
+      throw createError({
+        statusCode: 400,
+        message: "Failed to send OTP: " + otpResponse.detail
+      });
+    }
+  } catch (error) {
+    throw createError({
+      statusCode: 500,
+      message: "Error sending OTP."
+    });
+  }
+});
+
+const sendOtp_post$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  default: sendOtp_post
+});
+
+const prisma$1 = new PrismaClient();
+const delUser = defineEventHandler(async (event) => {
+  const { email } = getQuery$1(event);
+  if (event.req.method === "DELETE") {
+    try {
+      await prisma$1.user.delete({
+        where: { email }
+      });
+      return { message: "User deleted successfully" };
+    } catch (error) {
+      console.error(error);
+      return { error: "Failed to delete user" };
+    }
+  }
+  if (event.req.method === "PUT") {
+    try {
+      const userData = await readBody(event);
+      const updatedUser = await prisma$1.user.update({
+        where: { email },
+        data: userData
+      });
+      return { message: "User updated successfully", user: updatedUser };
+    } catch (error) {
+      console.error(error);
+      return { error: "Failed to update user" };
+    }
+  }
+  try {
+    const users = await prisma$1.user.findMany();
+    return users;
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to fetch users" };
+  }
+});
+
+const delUser$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  default: delUser
+});
+
+const prisma = new PrismaClient();
+const register = defineEventHandler(async (event) => {
+  const { phoneNumber, fullname, email } = await readBody(event);
+  try {
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        email
+      }
+    });
+    if (existingUser) {
+      return { code: "400", detail: "Email already exists" };
+    }
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        phoneNumber,
+        fullname
+      }
+    });
+    return newUser;
+  } catch (error) {
+    console.error("Error registering user:", error);
+    return { code: "500", detail: "Internal Server Error" };
+  }
+});
+
+const register$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  default: register
+});
+
+const sendOtp = defineEventHandler(async (event) => {
+  const { phoneNumber } = await readBody(event);
+  try {
+    const response = await fetch("https://portal-otp.smsmkt.com/api/otp-send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api_key": "b93544bfab41990ae31f2120c8dfb262",
+        "secret_key": "yCQ6E9ks247t4lL7"
+      },
+      body: JSON.stringify({
+        project_key: "3e2e018472",
+        phone: phoneNumber
+      })
+    });
+    const data = await response.json();
+    console.log("dataAPIotp: ", data);
+    return data;
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+    return { code: "500", detail: "Internal Server Error" };
+  }
+});
+
+const sendOtp$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  default: sendOtp
+});
+
+const verifyOtp = defineEventHandler(async (event) => {
+  const { token, otp_code } = await readBody(event);
+  try {
+    const response = await fetch("https://portal-otp.smsmkt.com/api/otp-validate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api_key": "b93544bfab41990ae31f2120c8dfb262",
+        "secret_key": "yCQ6E9ks247t4lL7"
+      },
+      body: JSON.stringify({
+        token,
+        otp_code
+      })
+    });
+    const data = await response.json();
+    if (data.result.status) {
+      return { status: true };
+    } else {
+      return { status: false };
+    }
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
+    return { status: false };
+  }
+});
+
+const verifyOtp$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  default: verifyOtp
 });
 
 const Vue3 = version[0] === "3";
