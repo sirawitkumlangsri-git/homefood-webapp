@@ -1,3 +1,4 @@
+//server/api/otp/send-otp.ts
 export default defineEventHandler(async (event) => {
   const { phoneNumber } = await readBody(event);
 

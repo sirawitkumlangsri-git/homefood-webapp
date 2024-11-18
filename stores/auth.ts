@@ -1,3 +1,4 @@
+//stores/auth.ts
 import { defineStore } from 'pinia';
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';

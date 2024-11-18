@@ -1,3 +1,4 @@
+//server/api/otp/verify-otp.ts
 export default defineEventHandler(async (event) => {
   const { token, otp_code} = await readBody(event);
 

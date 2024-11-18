@@ -6,6 +6,53 @@ import Line from '~/components/user/icons/Line.vue'
 import { useAuthStore } from '~/stores/auth'
 
 const authStore = useAuthStore()
+const otpSent = ref(false);
+const otpCode = ref('');
+const otpToken = ref('');
+
+const handleLogin = async () => {
+  try {
+    const response = await fetch('/api/otp/send-otp', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ phoneNumber: phone.value }),
+    });
+    const data = await response.json();
+    console.log('dataRegisPage : ', data)
+
+    if (data.code === '000') {
+      otpSent.value = true;
+      otpToken.value = data.result.token;
+    }
+  } catch (error) {
+    console.error('Error sending OTP:', error);
+  }
+};
+
+const handleVerifyOtp = async () => {
+  try {
+    const response = await fetch('/api/otp/verify-otp', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        token: otpToken.value,
+        otp_code: otpCode.value,
+      }),
+    });
+
+    const data = await response.json();
+    console.log('dataVerotp : ', data)
+    if (data.status == true) {
+      await login()
+    }
+  } catch (error) {
+    console.error('Error verifying OTP:', error);
+  }
+};
 
 const login = async () => {
   try {
@@ -34,20 +81,20 @@ const formatPhoneNumber = () => {
   phone.value = phoneNumber;
 };
 
-// เพิ่มฟังก์ชันแปลความหมาย error code
+
 const getErrorMessage = (errorCode) => {
   if (!window.intlTelInputUtils) return 'เบอร์โทรไม่ถูกต้อง';
 
   switch (errorCode) {
-    case intlTelInputUtils.validationError.IS_POSSIBLE:
+    case intlTelInput.validationError.IS_POSSIBLE:
       return "เบอร์โทรไม่ถูกต้องตามรูปแบบ";
-    case intlTelInputUtils.validationError.INVALID_COUNTRY_CODE:
+    case intlTelInput.validationError.INVALID_COUNTRY_CODE:
       return "รหัสประเทศไม่ถูกต้อง";
-    case intlTelInputUtils.validationError.TOO_SHORT:
+    case intlTelInput.validationError.TOO_SHORT:
       return "เบอร์โทรสั้นเกินไป";
-    case intlTelInputUtils.validationError.TOO_LONG:
+    case intlTelInput.validationError.TOO_LONG:
       return "เบอร์โทรยาวเกินไป";
-    case intlTelInputUtils.validationError.NOT_A_NUMBER:
+    case intlTelInput.validationError.NOT_A_NUMBER:
       return "กรุณากรอกเฉพาะตัวเลข";
     default:
       return "เบอร์โทรไม่ถูกต้อง";
@@ -55,7 +102,6 @@ const getErrorMessage = (errorCode) => {
 }
 
 onMounted(() => {
-  // สร้าง intl-tel-input ก่อน
   iti.value = intlTelInput(phoneInputRef.value, {
     initialCountry: 'th',
     preferredCountries: ['th'],
@@ -65,8 +111,6 @@ onMounted(() => {
     nationalMode: true,
     utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@19.2.15/build/js/utils.js'
   });
-
-  // รอให้ utils script โหลดเสร็จ (ไม่ต้องสร้าง intl-tel-input ใหม่)
   const waitForUtils = () => {
     if (!window.intlTelInputUtils) {
       setTimeout(waitForUtils, 100);
@@ -91,7 +135,7 @@ const isButtonDisabled = computed(() => {
 
 <template>
   <div class="mx-auto  items-center h-screen overflow-y-auto flex flex-col font-prompt">
-    <div class="absolute top-[78px] w-[288px] h-[177px] flex flex-col gap-[32px] ">
+    <div v-if="otpSent == false" class="absolute top-[78px] w-[288px] h-[177px] flex flex-col gap-[32px] ">
       <h1
         class="h-[33px] px-[8px] gap-[10px] sm:text-3xl text-[22px] font-extrabold leading-[33.26px] text-transparent bg-clip-text bg-gradient-to-r from-[#FF6347] to-[#FF826C] text-center">
         เข้าสู่ระบบ
@@ -125,8 +169,17 @@ const isButtonDisabled = computed(() => {
       </div>
     </div>
 
+    <div v-if="otpSent === true" class="mt-5">
+      <div class="font-prompt flex flex-col items-center h-screen w-full">
+        <p class="mt-4">ส่งโค้ดไปที่ (+66) แล้ว</p>
+        <input v-model="otpCode" type="text" placeholder="Enter OTP" required class=" input input-bordered mt-5" />
+
+        <div @click="handleVerifyOtp" class="btn btn-neutral mt-5">ยืนยันOTP</div>
+      </div>
+    </div>
+
     <div class="absolute top-[325px] w-[288px] flex flex-col gap-[32px]  h-[181px] ">
-      <button @click="login"
+      <button @click="handleLogin"
         class="w-[288px] h-[58px] rounded-[28px] flex items-center justify-center gap-[14px] font-prompt text-white font-semibold text-[18px] leading-[27.22px] bg-[#FF6347]">
         เข้าสู่ระบบ
       </button>
