@@ -1,6 +1,6 @@
 <template>
   <adminLayouts>
-    <div class="container mx-auto p-4 bg-base-100 rounded-lg">
+    <div class="container mx-auto p-4 bg-base-100 rounded-lg font-prompt">
       <div class="flex justify-center items-center bg-[#FF8128] w-full h-20 shadow-md rounded-full bg-opacity-50">
         <h2 class="sm:text-5xl text-3xl font-bold text-[#fefeff] text-stroke tracking-wide">จัดการผู้ใช้บริการ</h2>
       </div>
@@ -67,6 +67,7 @@ import adminLayouts from '~/layouts/adminLayouts.vue'
 
 import Trash from '~/components/admin/icons/Trash.vue';
 import Edit from '~/components/admin/icons/Edit.vue';
+import Swal from 'sweetalert2'
 
 const useres = ref([])
 
@@ -81,20 +82,48 @@ const fetchUser = async () => {
     useres.value = await response.json();
   } catch (err) {
     console.error('แสดงข้อมูลผู้ใช้ไม่สำเร็จ:', err);
+
   }
 };
 
 const deleteUser = async (email) => {
-  const confirmed = confirm('คุณต้องการลบผู้ใช้นี้หรือไม่?');
-  if (!confirmed) return;
-  try {
-    const response = await fetch(`/api/delUser?email=${email}`, {
-      method: 'DELETE',
-    });
-    if (!response.ok) throw new Error('ลบไม่สำเร็จ');
-    useres.value = useres.value.filter(user => user.email !== email);
-  } catch (err) {
-    console.error('Error deleting user:', err);
+  const result = await Swal.fire({
+    title: 'คุณแน่ใจหรือไม่?',
+    text: 'คุณต้องการลบผู้ใช้นี้หรือไม่?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'ลบ',
+    cancelButtonText: 'ยกเลิก',
+    customClass: {
+      title: 'font-prompt',
+      content: 'font-prompt',
+      confirmButton: 'font-prompt',
+      cancelButton: 'font-prompt',
+    }
+  });
+
+  if (result.isConfirmed) {
+    try {
+      const response = await fetch(`/api/delUser?email=${email}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('ลบไม่สำเร็จ');
+      useres.value = useres.value.filter((user) => user.email !== email);
+      Swal.fire({
+        title: 'ลบสำเร็จ!',
+        text: 'ผู้ใช้ได้ถูกลบเรียบร้อยแล้ว',
+        icon: 'success',
+      });
+    } catch (err) {
+      console.error('Error deleting user:', err);
+      Swal.fire({
+        title: 'เกิดข้อผิดพลาด!',
+        text: 'ไม่สามารถลบผู้ใช้ได้',
+        icon: 'error',
+      });
+    }
   }
 };
 
@@ -109,6 +138,10 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.font-prompt {
+  font-family: 'Prompt', sans-serif !important;
+}
+
 .text-stroke {
   text-shadow: -5px -1px 0 #FF8128, 1px -1px 0 #FF8128, -5px 1px 0 #FF8128, 1px 1px 0 #FF8128;
 }

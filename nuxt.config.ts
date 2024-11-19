@@ -10,9 +10,8 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@nuxtjs/google-fonts',
     '@pinia/nuxt',
-    
   ],
-  plugins: ['~/plugins/fontawesome.js'],
+  plugins: ['~/plugins/fontawesome.js' , '~/plugins/datepicker.js'],
   googleFonts: {
     families: {
       Sarabun: [400, 700],

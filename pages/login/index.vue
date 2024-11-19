@@ -179,8 +179,8 @@ const isButtonDisabled = computed(() => {
     </div>
 
     <div class="absolute top-[325px] w-[288px] flex flex-col gap-[32px]  h-[181px] ">
-      <button @click="handleLogin"
-        class="w-[288px] h-[58px] rounded-[28px] flex items-center justify-center gap-[14px] font-prompt text-white font-semibold text-[18px] leading-[27.22px] bg-[#FF6347]">
+      <button @click="login"
+        class="hover:-translate-y-1 transition-all duration-500 group w-[288px] h-[58px] rounded-[28px] flex items-center justify-center gap-[14px] font-prompt text-white font-semibold text-[18px] leading-[27.22px] bg-[#FF6347]">
         เข้าสู่ระบบ
       </button>
 

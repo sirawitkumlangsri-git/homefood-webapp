@@ -9,7 +9,11 @@ export default {
     "./error.vue",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        prompt: ['Prompt', 'sans-serif'],
+      },
+    },
   },
   plugins: [
     require('daisyui'),

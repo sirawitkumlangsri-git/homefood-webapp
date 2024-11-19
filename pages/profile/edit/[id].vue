@@ -45,7 +45,7 @@
   </div>
 
   <div class="flex justify-center mt-7 font-prompt">
-    <div class="w-[300px] h-[53px] bg-[#FF6347] rounded-full flex justify-center items-center" @click="handleSubmit">
+    <div class="hover:-translate-y-1 transition-all duration-500 group cursor-pointer w-[300px] h-[53px] bg-[#FF6347] rounded-full flex justify-center items-center" @click="handleSubmit">
       <p class="text-white font-medium">ดำเนินการต่อ</p>
     </div>
   </div>

@@ -5,7 +5,6 @@ const prisma = new PrismaClient();
 export default defineEventHandler(async (event) => {
   const { email, phoneNumber, fullname, otpToken, otpCode } = await readBody(event);
 
-  // Check if user already exists
   const existingUser = await prisma.user.findUnique({
     where: { phoneNumber },
   });

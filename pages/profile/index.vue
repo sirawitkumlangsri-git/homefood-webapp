@@ -47,7 +47,7 @@
               <p class="text-[12px]">{{ email }}</p>
             </div>
           </div>
-          <RouterLink to="/profile/edit">
+          <RouterLink :to="`/profile/edit/${authStore.user.id}`">
             <editProfile />
           </RouterLink>
 

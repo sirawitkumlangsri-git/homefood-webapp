@@ -24,7 +24,6 @@ export default defineEventHandler(async (event) => {
     }
 
     if (method === 'PUT') {
-      // PUT: อัปเดตข้อมูลผู้ใช้
       const body = await readBody(event);
       if (!query.id) {
         return { statusCode: 400, message: 'User ID is required' };
